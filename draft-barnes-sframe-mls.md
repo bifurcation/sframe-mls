@@ -84,7 +84,7 @@ use the MLS exporter to compute a shared SFrame secret for the epoch.
 sframe_epoch_secret = MLS-Exporter("SFrame 10 MLS", "", AEAD.Nk)
 
 sender_base_key[index] = HKDF-Expand(sframe_epoch_secret,
-                           encode_big_endian(index, 4), AEAD.Nk)
+                           encode_big_endian(index, 8), AEAD.Nk)
 ~~~~~
 
 [[ OPEN ISSUE: MLS has its own "secret tree" that provides better forward
