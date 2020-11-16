@@ -87,6 +87,11 @@ sender_base_key[index] = HKDF-Expand(sframe_epoch_secret,
                            encode_big_endian(index, 4), AEAD.Nk)
 ~~~~~
 
+[[ OPEN ISSUE: MLS has its own "secret tree" that provides better forward
+secrecy properties within an epoch.  (This scheme provides none.)  An
+alternative approach would be to re-use the MLS secret tree, either directly or
+as a data structure. ]]
+
 The Key ID (KID) field in the SFrame header provides the epoch and index values
 that are needed to generate the appropriate key from the MLS key schedule.
 
@@ -105,6 +110,10 @@ payloads by the network, the fewer bits of epoch are necessary.
 
 Receivers MUST be prepared for the epoch counter to roll over, removing an old
 epoch when a new epoch with the same E lower bits is introduced.
+
+[[ OPEN ISSUE: There might be some considerations for new joiners.  Some trial
+decryption might be necessary to detect whether you're in epoch N or in epoch N
++ 1 << E. ]]
 
 Once an SFrame stack has been provisioned with the `sframe_epoch_secret` for an
 epoch, it can compute the required KIDs and `sender_base_key` values on demand,
