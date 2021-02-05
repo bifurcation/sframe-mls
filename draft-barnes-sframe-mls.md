@@ -64,8 +64,42 @@ properties apply to real-time media as well.  In the remainder of this document,
 we define how to use the secrets produced by MLS to generate the keys required
 by SFrame.
 
-[[ OPEN ISSUE: We could define an MLS extension that would provide negotiation
-of SFrame parameters, notably the ciphersuite and the value E defined below. ]]
+# SFrame Parameter Negotiation
+
+In order to interoperate, the sender and receiver(s) of an SFrame payload need
+to agree on two parameters:
+
+* The SFrame ciphersuite
+* The number of bits `E` used to signal the epoch
+
+These parameters can be negotiated in MLS using the `sframe_parameters`
+extension.  An MLS participant advertises its supported ciphersuites in its
+KeyPackage.  The creator of the group chooses the values of these parameters for
+the group (possibly based on a set of KeyPackages) and advises them to new
+joiners in Welcome messages.
+
+```
+uint16 SFrameCipherSuite;
+
+struct {
+  SFrameCipherSuite cipher_suites<0..255>;
+} SFrameCapabilities;
+
+struct {
+  SFrameCipherSuite cipher_suite;
+  uint8 epoch_bits;
+} SFrameParameters;
+```
+
+When an extension of type `sframe_parameters` appears in an MLS KeyPackage, the
+extension data field MUST contain an SFrameCapabilities object.  When such an
+extension appears in a Welcome message, it MUST contain an SFrameParameters
+object.  The ciphersuite values MUST represent valid SFrame ciphersuites.
+
+The SFrameParameters object for a group, if present, MUST be included in the
+GroupContext for the group, as an extension of type `sframe_parameters`.  This
+ensures that the members of the group agree on the SFrame parameters associated
+to the group.
 
 # SFrame Key Management
 
@@ -164,7 +198,15 @@ impersonate each other.
 
 # IANA Considerations
 
-This document makes no request of IANA.
+This document requests that IANA add an entry to the MLS Extension Types
+registry, with the following values:
+
+| Value            | Name                     | Message(s) | Recommended | Reference |
+|:=================|:=========================|:===========|:============|:==========|
+| TBD              | sframe\_parameters       | KP, GI     | Y           | RFC XXXX  |
+
+RFC EDITOR: Please replace XXXX throughout with the RFC number assigned to
+this document.
 
 --- back
 
