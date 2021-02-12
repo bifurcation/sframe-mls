@@ -36,12 +36,13 @@ SFrame to secure real-time sessions for groups.
 
 # Introduction
 
-Secure Frames (SFrame) defines a compact scheme for encrypting real-time media.
-In order for SFrame to address cases where media are exchanged among many
-participants (e.g., real-time conferencing), it needs to be augmented with a
-group key management protocol.  The Messaging Layer Security (MLS) protocol
-[!I-D.ietf-mls-protocol] provides continuous group authenticated key exchange.
-MLS provides several important security properties [!I-D.ietf-mls-arch]:
+Secure Frames (SFrame) defines a compact scheme for encrypting real-time media
+{{!I-D.omara-sframe}}.  In order for SFrame to address cases where media are
+exchanged among many participants (e.g., real-time conferencing), it needs to be
+augmented with a group key management protocol.  The Messaging Layer Security
+(MLS) protocol {{!I-D.ietf-mls-protocol}} provides continuous group
+authenticated key exchange.  MLS provides several important security properties
+{{!I-D.ietf-mls-architecture}}:
 
 * Group Key Exchange: All members of the group at a given time know a secret key
   that is inaccessible to parties outside the group.
@@ -64,8 +65,66 @@ properties apply to real-time media as well.  In the remainder of this document,
 we define how to use the secrets produced by MLS to generate the keys required
 by SFrame.
 
-[[ OPEN ISSUE: We could define an MLS extension that would provide negotiation
-of SFrame parameters, notably the ciphersuite and the value E defined below. ]]
+# SFrame Parameter Negotiation
+
+In order to interoperate, the sender and receiver(s) of an SFrame payload need
+to agree on two parameters:
+
+* The SFrame ciphersuite
+* The number of bits `E` used to signal the epoch
+
+These parameters can be negotiated in MLS using the `sframe_parameters`
+extension.  An MLS participant advertises its supported ciphersuites in its
+KeyPackage.  The creator of the group chooses the values of these parameters for
+the group (possibly based on a set of KeyPackages) and advises them to new
+joiners in Welcome messages.
+
+```
+uint16 SFrameCipherSuite;
+
+struct {
+  SFrameCipherSuite cipher_suites<0..255>;
+} SFrameCapabilities;
+
+struct {
+  SFrameCipherSuite cipher_suite;
+  uint8 epoch_bits;
+} SFrameParameters;
+```
+
+The values allowed for `SFrameCipherSuite` are defined in {{!I-D.omara-sframe}}
+and the IANA registries it references.
+
+When an extension of type `sframe_parameters` appears in an MLS KeyPackage, the
+extension data field MUST contain an SFrameCapabilities object.  When such an
+extension appears in a Welcome message, it MUST contain an SFrameParameters
+object.  The ciphersuite values MUST represent valid SFrame ciphersuites.
+
+The SFrameParameters object for a group, if present, MUST be included in the
+GroupContext for the group, as an extension of type `sframe_parameters`.  This
+ensures that the members of the group agree on the SFrame parameters associated
+to the group.
+
+## SFrame Parameter Selection 
+
+Just as with MLS ciphersuite selection, the creator of an MLS group chooses the
+SFrame parameters to be used for the group.  The parameters are then fixed for
+the lifetime of the group.
+
+The creator of the group needs to choose a ciphersuite and an `epoch_bits`
+value.  The ciphersuite SHOULD be chosen from among those supported by the
+members of the group, as expressed by those members' key packages.  Members that
+don't support the chosen ciphersuite will not be able to send or receive
+SFrame-encrypted media.
+
+As discussed below, the `epoch_bits` field effectively bounds the rate at which
+the epoch can change, at the cost of possible growth in the KID field.
+Applications SHOULD NOT use `epoch_bits = 0`, unless they have an external
+signal for which epoch's keys are in use.  Otherwise, applications should choose
+a value for `epoch_bits` such that they expect to never have more than
+`2^epoch_bits` epochs active at once.  That is, by the time the key for epoch `k +
+2^epoch_bits` is distributed, all senders should have stopped sending with epoch
+`k`.
 
 # SFrame Key Management
 
@@ -150,8 +209,8 @@ SFrame uses signatures, these are the keys used to generate SFrame signatures.
 # Security Considerations
 
 The security properties provided by MLS are discussed in detail in
-[!I-D.ietf-mls-arch] and [!I-D.ietf-mls-protocol].  This document extends those
-guarantees to SFrame.
+{{!I-D.ietf-mls-architecture}} and {{!I-D.ietf-mls-protocol}}.  This document
+extends those guarantees to SFrame.
 
 It should be noted that the per-sender keys derived here do not provide
 per-sender authentication, since any member of the group could derive the same
@@ -164,7 +223,15 @@ impersonate each other.
 
 # IANA Considerations
 
-This document makes no request of IANA.
+This document requests that IANA add an entry to the MLS Extension Types
+registry, with the following values:
+
+| Value            | Name                     | Message(s) | Recommended | Reference |
+|:=================|:=========================|:===========|:============|:==========|
+| TBD              | sframe\_parameters       | KP, GI     | Y           | RFC XXXX  |
+
+RFC EDITOR: Please replace XXXX throughout with the RFC number assigned to
+this document.
 
 --- back
 
