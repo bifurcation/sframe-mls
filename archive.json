@@ -1,0 +1,238 @@
+{
+  "magic": "E!vIA5L86J2I",
+  "timestamp": "2021-01-17T00:37:11.304208+00:00",
+  "repo": "bifurcation/sframe-mls",
+  "labels": [
+    {
+      "name": "bug",
+      "description": "Something isn't working",
+      "color": "d73a4a"
+    },
+    {
+      "name": "documentation",
+      "description": "Improvements or additions to documentation",
+      "color": "0075ca"
+    },
+    {
+      "name": "duplicate",
+      "description": "This issue or pull request already exists",
+      "color": "cfd3d7"
+    },
+    {
+      "name": "enhancement",
+      "description": "New feature or request",
+      "color": "a2eeef"
+    },
+    {
+      "name": "help wanted",
+      "description": "Extra attention is needed",
+      "color": "008672"
+    },
+    {
+      "name": "good first issue",
+      "description": "Good for newcomers",
+      "color": "7057ff"
+    },
+    {
+      "name": "invalid",
+      "description": "This doesn't seem right",
+      "color": "e4e669"
+    },
+    {
+      "name": "question",
+      "description": "Further information is requested",
+      "color": "d876e3"
+    },
+    {
+      "name": "wontfix",
+      "description": "This will not be worked on",
+      "color": "ffffff"
+    }
+  ],
+  "issues": [],
+  "pulls": [
+    {
+      "number": 1,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTIxMjI1MDU4",
+      "title": "Flesh out empty sections",
+      "url": "https://github.com/bifurcation/sframe-mls/pull/1",
+      "state": "MERGED",
+      "author": "bifurcation",
+      "authorAssociation": "OWNER",
+      "assignees": [],
+      "labels": [],
+      "body": "",
+      "createdAt": "2020-11-15T16:57:47Z",
+      "updatedAt": "2020-11-16T06:09:30Z",
+      "baseRepository": "bifurcation/sframe-mls",
+      "baseRefName": "main",
+      "baseRefOid": "68eb99c347449caaaead874695768d9b25ce5702",
+      "headRepository": "bifurcation/sframe-mls",
+      "headRefName": "text",
+      "headRefOid": "a6ecb11a416658e99ffb60b64a6d3a22ccc6b5be",
+      "closedAt": "2020-11-16T06:09:30Z",
+      "mergedAt": "2020-11-16T06:09:30Z",
+      "mergedBy": "bifurcation",
+      "mergeCommit": {
+        "oid": "9101ec6b2ab09bebf2919cae8bcb331a7684d2dc"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwODI0MzMw",
+          "commit": {
+            "abbreviatedOid": "988eb48"
+          },
+          "author": "raphaelrobert",
+          "authorAssociation": "NONE",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-11-15T18:49:52Z",
+          "updatedAt": "2020-11-15T18:54:05Z",
+          "comments": [
+            {
+              "originalPosition": 88,
+              "body": "New joiners might have problems when joining towards the end of a rollover window, because they might not know if they are in the current window or already in the next one. Limited trial decryption might be the solution here.",
+              "createdAt": "2020-11-15T18:49:52Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            },
+            {
+              "originalPosition": 71,
+              "body": "The alternative might be to use the SecretTree from MLS which provides more fine-grained FS guarantees. But it might be overkill for real-time applications.",
+              "createdAt": "2020-11-15T18:52:43Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            },
+            {
+              "originalPosition": 113,
+              "body": "Where do we define ciphersuites? Is that part of SFrame?",
+              "createdAt": "2020-11-15T18:53:34Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwOTM0MjIy",
+          "commit": {
+            "abbreviatedOid": "988eb48"
+          },
+          "author": "bifurcation",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-11-16T05:58:48Z",
+          "updatedAt": "2020-11-16T05:58:49Z",
+          "comments": [
+            {
+              "originalPosition": 88,
+              "body": "I don't *think* this is an problem, but I'll add an open issue.",
+              "createdAt": "2020-11-16T05:58:48Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwOTM0NTU4",
+          "commit": {
+            "abbreviatedOid": "988eb48"
+          },
+          "author": "bifurcation",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-11-16T06:00:02Z",
+          "updatedAt": "2020-11-16T06:00:02Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Added an open issue. ",
+              "createdAt": "2020-11-16T06:00:02Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwOTM1NDQ2",
+          "commit": {
+            "abbreviatedOid": "988eb48"
+          },
+          "author": "bifurcation",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-11-16T06:03:19Z",
+          "updatedAt": "2020-11-16T06:03:20Z",
+          "comments": [
+            {
+              "originalPosition": 71,
+              "body": "Minor point: The issue is not with this KID construction, since the KID would have this form even if we use the secret tree.",
+              "createdAt": "2020-11-16T06:03:19Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            }
+          ]
+        },
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwOTM1NTQ3",
+          "commit": {
+            "abbreviatedOid": "988eb48"
+          },
+          "author": "bifurcation",
+          "authorAssociation": "OWNER",
+          "state": "COMMENTED",
+          "body": "",
+          "createdAt": "2020-11-16T06:03:41Z",
+          "updatedAt": "2020-11-16T06:03:41Z",
+          "comments": [
+            {
+              "originalPosition": 113,
+              "body": "Yeah, the ciphersuites are defined in the base SFrame document.",
+              "createdAt": "2020-11-16T06:03:41Z",
+              "updatedAt": "2020-11-16T06:07:27Z"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "number": 2,
+      "id": "MDExOlB1bGxSZXF1ZXN0NTIxNDA2NjQ1",
+      "title": "Don't truncate the epoch ID for the key schedule",
+      "url": "https://github.com/bifurcation/sframe-mls/pull/2",
+      "state": "MERGED",
+      "author": "martinthomson",
+      "authorAssociation": "CONTRIBUTOR",
+      "assignees": [],
+      "labels": [],
+      "body": "It is only necessary to truncate on the wire.",
+      "createdAt": "2020-11-16T06:39:04Z",
+      "updatedAt": "2020-11-16T06:45:56Z",
+      "baseRepository": "bifurcation/sframe-mls",
+      "baseRefName": "main",
+      "baseRefOid": "9101ec6b2ab09bebf2919cae8bcb331a7684d2dc",
+      "headRepository": "martinthomson/sframe-mls",
+      "headRefName": "patch-1",
+      "headRefOid": "beaa9c4148eff398bf003d00b011e91ebcbedd37",
+      "closedAt": "2020-11-16T06:39:50Z",
+      "mergedAt": "2020-11-16T06:39:50Z",
+      "mergedBy": "bifurcation",
+      "mergeCommit": {
+        "oid": "6cfa18fc953e562d46d17e5c65295b6df8dac7ea"
+      },
+      "comments": [],
+      "reviews": [
+        {
+          "id": "MDE3OlB1bGxSZXF1ZXN0UmV2aWV3NTMwOTQ2NDUw",
+          "commit": {
+            "abbreviatedOid": "beaa9c4"
+          },
+          "author": "bifurcation",
+          "authorAssociation": "OWNER",
+          "state": "APPROVED",
+          "body": "",
+          "createdAt": "2020-11-16T06:39:32Z",
+          "updatedAt": "2020-11-16T06:39:32Z",
+          "comments": []
+        }
+      ]
+    }
+  ]
+}
