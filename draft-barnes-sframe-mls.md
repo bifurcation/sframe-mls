@@ -19,7 +19,7 @@ author:
  -  ins: R. Robert
     name: Raphael Robert
     organization: Wire
-    email: raphael@wire.com
+    email: ietf@raphaelrobert.com
 
 --- abstract
 
