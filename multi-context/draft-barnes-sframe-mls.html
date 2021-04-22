@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en" class="Internet-Draft">
+<head>
+<meta charset="utf-8">
+<meta content="Common,Latin" name="scripts">
+<meta content="initial-scale=1.0" name="viewport">
+<title>Using Messaging Layer Security (MLS) to Provide Keys for SFrame</title>
+<meta content="Richard Barnes" name="author">
+<meta content="Raphael Robert" name="author">
+<meta content="
+       Secure Frames (SFrame) defines a compact scheme for encrypting real-time media.
+In order for SFrame to address cases where media are exchanged among many
+participants (e.g., real-time conferencing), it needs to be augmented with a
+group key management protocol.  The Messaging Layer Security (MLS) protocol
+provides continuous group authenticated key exchange, allowing a group of
+participants in a media session to authenticate each other and agree on a group
+key.  This document defines how the group keys produced by MLS can be used with
+SFrame to secure real-time sessions for groups. 
+    " name="description">
+<meta content="xml2rfc 3.7.0" name="generator">
+<meta content="Internet-Draft" name="keyword">
+<meta content="draft-barnes-sframe-mls-latest" name="ietf.draft">
+<!-- Generator version information:
+  xml2rfc 3.7.0
+    Python 3.8.8
+    appdirs 1.4.4
+    ConfigArgParse 1.2.3
+    google-i18n-address 2.4.0
+    html5lib 1.1
+    intervaltree 3.1.0
+    Jinja2 2.11.2
+    kitchen 1.2.6
+    lxml 4.6.3
+    pycountry 20.7.3
+    pyflakes 2.2.0
+    PyYAML 5.4.1
+    requests 2.25.1
+    setuptools 51.3.3
+    six 1.15.0
+-->
+<link href="draft-barnes-sframe-mls.xml" rel="alternate" type="application/rfc+xml">
+<link href="#copyright" rel="license">
+<style type="text/css">@import url('https://martinthomson.github.io/i-d-template/fonts.css');
+
+html {
+  --background-color: #fff;
+  --text-color: #222;
+  --title-color: #191919;
+  --link-color: #2a6496;
+  --highlight-color: #f9f9f9;
+  --line-color: #eee;
+  --pilcrow-weak: #ddd;
+  --pilcrow-strong: #bbb;
+  --small-font-size: 14.5px;
+  scrollbar-color: #bbb #eee;
+}
+@media (prefers-color-scheme: dark) {
+html {
+  --background-color: #121212;
+  --text-color: #f0f0f0;
+  --title-color: #fff;
+  --link-color: #4da4f0;
+  --highlight-color: #282828;
+  --line-color: #444;
+  --pilcrow-weak: #444;
+  --pilcrow-strong: #666;
+  scrollbar-color: #777 #333;
+}
+}
+body {
+  max-width: 600px;
+  margin: 75px auto;
+  padding: 0 5px;
+  color: var(--text-color);
+  background-color: var(--background-color);
+  font: 16px/22px "Lora", serif;
+  scroll-behavior: smooth;
+}
+
+.ears {
+  display: none;
+}
+
+/* headings */
+#title, h1, h2, h3, h4, h5, h6 {
+  font-family: "Cabin Condensed", sans-serif;
+  font-weight: 600;
+  margin: 0.8em 0 0.3em;
+  font-size-adjust: 0.5;
+  color: var(--title-color);
+}
+#title {
+  padding: 1em 0 0.2em;
+  font-size: 32px;
+  line-height: 40px;
+  clear: both;
+}
+h1, h2, h3 {
+  font-size: 22px;
+  line-height: 27px;
+}
+h4, h5, h6 {
+  font-size: 20px;
+  line-height: 24px;
+}
+
+/* general structure */
+.author {
+  padding-bottom: 0.3em;
+}
+#abstract+p, #abstract+p code, #abstract+p samp, #abstract+p tt {
+  font-size: 18px;
+  line-height: 24px;
+}
+p {
+  padding: 0;
+  margin: 0.5em 0;
+  text-align: left;
+}
+div {
+  margin: 0;
+}
+.alignRight.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignRight.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignRight {
+  margin: 1em 0;
+}
+.alignRight > *:first-child {
+  border: none;
+  margin: 0;
+  float: right;
+  clear: both;
+}
+.alignRight > *:nth-child(2) {
+  clear: both;
+  display: block;
+  border: none;
+}
+svg {
+  display: block;
+}
+.alignCenter.art-text {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  padding: 0.5em 1em 0;
+  margin-bottom: 0.5em;
+}
+.alignCenter.art-text pre {
+  padding: 0;
+  width: auto;
+}
+.alignCenter {
+  margin: 1em 0;
+}
+.alignCenter > *:first-child {
+  border: none;
+  /* this isn't optimal, but it's an existence proof.  PrinceXML doesn't
+     support flexbox yet.
+  */
+  display: table;
+  margin: 0 auto;
+}
+
+/* lists */
+ol, ul {
+  padding: 0;
+  margin: 0 0 0.5em 2em;
+}
+ol ol, ul ul, ol ul, ul ol {
+  margin-left: 1em;
+}
+li {
+  margin: 0 0 0.25em 0;
+}
+.ulCompact li {
+  margin: 0;
+}
+ul.empty, .ulEmpty {
+  list-style-type: none;
+}
+ul.empty li, .ulEmpty li {
+  margin-top: 0.5em;
+}
+ul.compact, .ulCompact,
+ol.compact, .olCompact {
+  line-height: 100%;
+  margin: 0 0 0 2em;
+}
+
+/* definition lists */
+dl {
+}
+dl > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl > dd {
+  margin-bottom: .8em;
+  min-height: 1.3em;
+}
+dl.compact > dd, .dlCompact > dd {
+  margin-bottom: 0em;
+}
+dl > dd > dl {
+  margin-top: 0.5em;
+  margin-bottom: 0em;
+}
+dd.break {
+  display: none;
+}
+
+/* links */
+a, a[href].selfRef:hover {
+  text-decoration: none;
+}
+a[href].selfRef {
+  color: var(--text-color);
+}
+a[href] {
+  color: var(--link-color);
+}
+a[href]:hover {
+  text-decoration: underline;
+}
+a[href].selfRef:hover {
+  background-color: var(--highlight-color);
+}
+a.xref {
+  white-space: nowrap;
+}
+
+/* Figures */
+tt, code, pre {
+  background-color: var(--highlight-color);
+  font: 14px/22px 'Oxygen Mono', monospace;
+}
+pre {
+  border: 1px solid var(--line-color);
+  font-size: 13.5px;
+  line-height: 16px;
+  letter-spacing: -0.2px;
+  margin: 5px;
+  padding: 5px;
+}
+img {
+  max-width: 100%;
+}
+figure {
+  margin: 0.5em 0;
+  padding: 0;
+}
+figure blockquote {
+  margin: 0.8em 0.4em 0.4em;
+}
+figcaption, caption {
+  font-style: italic;
+  margin: 0.5em 1.5em;
+  text-align: left;
+}
+@media screen {
+  pre {
+    display: inline-block;
+    overflow-x: auto;
+    max-width: 100%;
+    width: calc(100% - 22px - 1em);
+  }
+  figure pre {
+    display: block;
+    width: calc(100% - 25px);
+  }
+  pre + .pilcrow {
+    display: inline-block;
+    vertical-align: text-bottom;
+    padding-bottom: 8px;
+  }
+}
+
+/* aside, blockquote */
+aside, blockquote {
+  margin-left: 0;
+  padding: 0 2em;
+  font-style: italic;
+}
+blockquote {
+  background-color: var(--highlight-color);
+  border: 1px solid var(--line-color);
+  border-radius: 3px;
+  margin: 1em 0;
+}
+cite {
+  display: block;
+  text-align: right;
+  font-style: italic;
+}
+
+/* tables */
+table {
+  max-width: 100%;
+  margin: 0 0 1em;
+  border-collapse: collapse;
+}
+table.right {
+  margin-left: auto;
+}
+table.center {
+  margin-left: auto;
+  margin-right: auto;
+}
+table.left {
+  margin-right: auto;
+}
+thead, tbody {
+  border: 1px solid var(--line-color);
+}
+th, td {
+  text-align: left;
+  vertical-align: top;
+  padding: 5px 10px;
+}
+th {
+  background-color: var(--line-color);
+}
+tr:nth-child(2n) > td {
+  background-color: var(--background-color);
+}
+tr:nth-child(2n+1) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody > tr:nth-child(2n) > td {
+  background-color: var(--highlight-color);
+}
+thead+tbody > tr:nth-child(2n+1) > td {
+  background-color: var(--background-color);
+}
+table caption {
+  margin: 0;
+  padding: 3px 0 3px 1em;
+}
+table p {
+  margin: 0;
+}
+
+/* pilcrow */
+a.pilcrow {
+  margin-left: 3px;
+  opacity: 0.2;
+  user-select: none;
+}
+a.pilcrow[href] { color: var(--pilcrow-weak); }
+a.pilcrow[href]:hover { text-decoration: none; }
+@media not print {
+  :hover > a.pilcrow {
+    opacity: 1;
+  }
+  a.pilcrow[href]:hover {
+    color: var(--pilcrow-strong);
+    background-color: transparent;
+  }
+}
+@media print {
+  a.pilcrow {
+    display: none;
+  }
+}
+
+/* misc */
+hr {
+  border: 0;
+  border-top: 1px solid var(--line-color);
+}
+.bcp14 {
+  font-variant: small-caps;
+}
+
+.role {
+  font-variant: all-small-caps;
+}
+
+/* info block */
+#identifiers {
+  margin: 0;
+  font-size: var(--small-font-size);
+  line-height: 18px;
+  --identifier-width: 8em;
+}
+#identifiers dt {
+  width: var(--identifier-width);
+  margin: 0;
+  clear: left;
+  float: left;
+  text-align: right;
+}
+#identifiers dd {
+  margin: 0 0 0 calc(1em + var(--identifier-width));
+  min-width: 5em;
+}
+#identifiers .authors .author {
+  display: inline-block;
+  margin-right: 1.5em;
+}
+#identifiers .authors .org {
+  font-style: italic;
+}
+
+/* The prepared/rendered info at the very bottom of the page */
+.docInfo {
+  color: #999;
+  font-size: 0.9em;
+  font-style: italic;
+  margin-top: 2em;
+}
+.docInfo .prepared {
+  float: left;
+}
+.docInfo .prepared {
+  float: right;
+}
+
+/* table of contents */
+#toc {
+  padding: 0.75em 0 2em 0;
+  margin-bottom: 1em;
+}
+#toc nav ul {
+  margin: 0 0.5em 0 0;
+  padding: 0;
+  list-style: none;
+}
+#toc nav li {
+  line-height: 1.3em;
+  margin: 0.75em 0;
+  padding-left: 1.2em;
+  text-indent: -1.2em;
+}
+#toc a.xref {
+  white-space: normal;
+}
+/* references */
+.references dt {
+  text-align: right;
+  font-weight: bold;
+  min-width: 7em;
+}
+.references dd {
+  margin-left: 8em;
+  overflow: auto;
+}
+
+.refInstance {
+  margin-bottom: 1.25em;
+}
+
+.references .ascii {
+  margin-bottom: 0.25em;
+}
+
+/* index */
+.index ul {
+  margin: 0 0 0 1em;
+  padding: 0;
+  list-style: none;
+}
+.index ul ul {
+  margin: 0;
+}
+.index li {
+  margin: 0;
+  text-indent: -2em;
+  padding-left: 2em;
+  padding-bottom: 5px;
+}
+.indexIndex {
+  margin: 0.5em 0 1em;
+}
+.index a {
+  font-weight: 700;
+}
+/* make the index two-column on all but the smallest screens */
+@media (min-width: 500px) {
+  .index ul {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  .index ul ul {
+    column-count: 1;
+    column-gap: 0;
+  }
+}
+
+/* authors */
+address.vcard {
+  font-style: normal;
+  margin: 1em 0;
+}
+address.vcard .nameRole {
+  font-weight: 700;
+  margin-left: 0;
+}
+address.vcard .label {
+  margin: 0.5em 0;
+}
+address.vcard .type {
+  display: none;
+}
+.alternative-contact {
+  margin: 1.5em 0 1em;
+}
+hr.addr {
+  border-top: 1px dashed;
+  margin: 0;
+  color: #ddd;
+  max-width: calc(100% - 16px);
+}
+@media (min-width: 500px) {
+  #authors-addresses > section {
+    column-count: 2;
+    column-gap: 20px;
+  }
+  #authors-addresses > section > h2 {
+    column-span: all;
+  }
+  /* hack for break-inside: avoid-column */
+  #authors-addresses address {
+    display: inline-block;
+    break-inside: avoid-column;
+  }
+}
+
+.rfcEditorRemove p:first-of-type {
+  font-style: italic;
+}
+.cref {
+  background-color: rgba(249, 232, 105, 0.3);
+  padding: 2px 4px;
+}
+.crefSource {
+  font-style: italic;
+}
+/* alternative layout for smaller screens */
+@media screen and (max-width: 929px) {
+  #toc {
+    position: fixed;
+    z-index: 2;
+    top: 0;
+    right: 0;
+    padding: 0;
+    margin: 0;
+    border-bottom: 1px solid #ccc;
+    opacity: 0.6;
+  }
+  #toc.active {
+      opacity: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 2px 0 2px 6px;
+    padding-right: 1em;
+    font-size: 18px;
+    line-height: 24px;
+    min-width: 190px;
+    text-align: right;
+    background-color: #444;
+    color: white;
+    cursor: pointer;
+  }
+  #toc h2::before { /* css hamburger */
+    float: right;
+    position: relative;
+    width: 1em;
+    height: 1px;
+    left: -164px;
+    margin: 8px 0 0 0;
+    background: white none repeat scroll 0 0;
+    box-shadow: 0 4px 0 0 white, 0 8px 0 0 white;
+    content: "";
+  }
+  #toc nav {
+    display: none;
+    background-color: var(--background-color);
+    padding: 0.5em 1em 1em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    height: calc(100vh - 48px);
+    border-left: 1px solid #ddd;
+  }
+  #toc.active nav {
+    display: block;
+  }
+  /* Make the collapsed ToC header render white on gray also when it's a link */
+  #toc h2 a,
+  #toc h2 a:link,
+  #toc h2 a:focus,
+  #toc h2 a:hover,
+  #toc a.toplink,
+  #toc a.toplink:hover {
+    color: white;
+    background-color: #444;
+    text-decoration: none;
+  }
+  #toc a.toplink {
+    margin-top: 2px;
+  }
+}
+
+/* alternative layout for wide screens */
+@media screen and (min-width: 930px) {
+  body {
+    padding-right: 360px;
+    padding-right: calc(min(180px + 20%, 500px));
+  }
+  #toc {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    right: calc(50vw - 480px);
+    width: 312px;
+    margin: 0;
+    padding: 0;
+    z-index: 1;
+  }
+  #toc h2 {
+    margin: 0;
+    padding: 0.25em 1em 1em 0;
+  }
+  #toc nav {
+    display: block;
+    height: calc(90vh - 84px);
+    bottom: 0;
+    padding: 0.5em 0 2em;
+    overflow: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+  }
+  #toc nav > ul  {
+    margin-bottom: 2em;
+  }
+  #toc ul {
+    margin: 0 0 0 4px;
+    font-size: var(--small-font-size);
+  }
+  #toc ul p, #toc ul li {
+    margin: 2px 0;
+    line-height: 22px;
+  }
+  img { /* future proofing */
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* pagination */
+@media print {
+  body {
+    width: 100%;
+  }
+  p {
+    orphans: 3;
+    widows: 3;
+  }
+  #n-copyright-notice {
+    border-bottom: none;
+  }
+  #toc, #n-introduction {
+    page-break-before: always;
+  }
+  #toc {
+    border-top: none;
+    padding-top: 0;
+  }
+  figure, pre {
+    page-break-inside: avoid;
+  }
+  figure {
+    overflow: scroll;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    page-break-after: avoid;
+  }
+  h2+*, h3+*, h4+*, h5+*, h6+* {
+    page-break-before: avoid;
+  }
+  pre {
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-size: 10pt;
+  }
+  table {
+    border: 1px solid #ddd;
+  }
+  td {
+    border-top: 1px solid #ddd;
+  }
+}
+
+@page :first {
+  padding-top: 0;
+  @top-left {
+    content: normal;
+    border: none;
+  }
+  @top-center {
+    content: normal;
+    border: none;
+  }
+  @top-right {
+    content: normal;
+    border: none;
+  }
+}
+
+@page {
+  size: A4;
+  margin-bottom: 45mm;
+  padding-top: 20px;
+}
+
+/* Changes introduced to fix issues found during implementation */
+
+/* Separate body from document info even without intervening H1 */
+section {
+  clear: both;
+}
+
+/* Top align author divs, to avoid names without organization dropping level with org names */
+.author {
+  vertical-align: top;
+}
+
+/* Style section numbers with more space between number and title */
+.section-number {
+  padding-right: 0.5em;
+}
+
+/* Add styling for a link in the ToC that points to the top of the document */
+a.toplink {
+  float: right;
+  margin: 8px 0.5em 0;
+}
+
+/* Fix the dl styling to match the RFC 7992 attributes */
+dl > dt,
+dl.dlParallel > dt {
+  float: left;
+  margin-right: 1em;
+}
+dl.dlNewline > dt {
+  float: none;
+}
+
+/* Provide styling for table cell text alignment */
+table .text-left, table .text-left {
+  text-align: left;
+}
+table .text-center, table .text-center {
+  text-align: center;
+}
+table .text-right, table .text-right {
+  text-align: right;
+}
+
+/* Make the alternative author contact information look less like just another
+   author, and group it closer with the primary author contact information */
+.alternative-contact {
+  margin: 0.5em 0 0.25em 0;
+}
+address .non-ascii {
+  margin: 0 0 0 2em;
+}
+
+/* With it being possible to set tables with alignment
+  left, center, and right, { width: 100%; } does not make sense */
+table {
+  width: auto;
+}
+
+/* Avoid reference text that sits in a block with very wide left margin,
+   because of a long floating dt label.*/
+.references dd {
+  overflow: visible;
+}
+
+/* Control caption placement */
+caption {
+  caption-side: bottom;
+}
+
+/* Limit the width of the author address vcard, so names in right-to-left
+   script don't end up on the other side of the page. */
+
+address.vcard {
+  max-width: 20em;
+  margin-right: auto;
+}
+
+/* For address alignment dependent on LTR or RTL scripts */
+address div.left {
+  text-align: left;
+}
+address div.right {
+  text-align: right;
+}
+
+/* Give the table caption label the same styling as the figcaption */
+
+@media print {
+  .toplink {
+    display: none;
+  }
+
+  /* avoid overwriting the top border line with the ToC header */
+  #toc {
+    padding-top: 1px;
+  }
+
+  /* Avoid page breaks inside dl and author address entries */
+  dd {
+    page-break-before: avoid;
+  }
+  .vcard {
+    page-break-inside: avoid;
+  }
+
+}
+/* Tweak the bcp14 keyword presentation */
+.bcp14 {
+  font-variant: small-caps;
+  font-weight: bold;
+  font-size: 0.9em;
+}
+</style>
+
+</head>
+<body>
+<table class="ears">
+<thead><tr>
+<td class="left">Internet-Draft</td>
+<td class="center">MLS-SFrame</td>
+<td class="right">April 2021</td>
+</tr></thead>
+<tfoot><tr>
+<td class="left">Barnes &amp; Robert</td>
+<td class="center">Expires 24 October 2021</td>
+<td class="right">[Page]</td>
+</tr></tfoot>
+</table>
+<div id="external-metadata" class="document-information"></div>
+<div id="internal-metadata" class="document-information">
+<dl id="identifiers">
+<dt class="label-workgroup">Workgroup:</dt>
+<dd class="workgroup">Network Working Group</dd>
+<dt class="label-internet-draft">Internet-Draft:</dt>
+<dd class="internet-draft">draft-barnes-sframe-mls-latest</dd>
+<dt class="label-published">Published:</dt>
+<dd class="published">
+<time datetime="2021-04-22" class="published">22 April 2021</time>
+    </dd>
+<dt class="label-intended-status">Intended Status:</dt>
+<dd class="intended-status">Informational</dd>
+<dt class="label-expires">Expires:</dt>
+<dd class="expires"><time datetime="2021-10-24">24 October 2021</time></dd>
+<dt class="label-authors">Authors:</dt>
+<dd class="authors">
+<div class="author">
+      <div class="author-name">R. Barnes</div>
+<div class="org">Cisco</div>
+</div>
+<div class="author">
+      <div class="author-name">R. Robert</div>
+<div class="org">Wire</div>
+</div>
+</dd>
+</dl>
+</div>
+<h1 id="title">Using Messaging Layer Security (MLS) to Provide Keys for SFrame</h1>
+<section id="section-abstract">
+      <h2 id="abstract"><a href="#abstract" class="selfRef">Abstract</a></h2>
+<p id="section-abstract-1">Secure Frames (SFrame) defines a compact scheme for encrypting real-time media.
+In order for SFrame to address cases where media are exchanged among many
+participants (e.g., real-time conferencing), it needs to be augmented with a
+group key management protocol.  The Messaging Layer Security (MLS) protocol
+provides continuous group authenticated key exchange, allowing a group of
+participants in a media session to authenticate each other and agree on a group
+key.  This document defines how the group keys produced by MLS can be used with
+SFrame to secure real-time sessions for groups.<a href="#section-abstract-1" class="pilcrow">¶</a></p>
+</section>
+<section class="note rfcEditorRemove" id="section-note.1">
+      <h2 id="name-discussion-venues">
+<a href="#name-discussion-venues" class="section-name selfRef">Discussion Venues</a>
+      </h2>
+<p id="section-note.1-1">This note is to be removed before publishing as an RFC.<a href="#section-note.1-1" class="pilcrow">¶</a></p>
+<p id="section-note.1-2">Source for this draft and an issue tracker can be found at
+  <span><a href="https://github.com/bifurcation/sframe-mls">https://github.com/bifurcation/sframe-mls</a></span>.<a href="#section-note.1-2" class="pilcrow">¶</a></p>
+</section>
+<div id="status-of-memo">
+<section id="section-boilerplate.1">
+        <h2 id="name-status-of-this-memo">
+<a href="#name-status-of-this-memo" class="section-name selfRef">Status of This Memo</a>
+        </h2>
+<p id="section-boilerplate.1-1">
+        This Internet-Draft is submitted in full conformance with the
+        provisions of BCP 78 and BCP 79.<a href="#section-boilerplate.1-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-2">
+        Internet-Drafts are working documents of the Internet Engineering Task
+        Force (IETF). Note that other groups may also distribute working
+        documents as Internet-Drafts. The list of current Internet-Drafts is
+        at <span><a href="https://datatracker.ietf.org/drafts/current/">https://datatracker.ietf.org/drafts/current/</a></span>.<a href="#section-boilerplate.1-2" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-3">
+        Internet-Drafts are draft documents valid for a maximum of six months
+        and may be updated, replaced, or obsoleted by other documents at any
+        time. It is inappropriate to use Internet-Drafts as reference
+        material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.1-4">
+        This Internet-Draft will expire on 24 October 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="copyright">
+<section id="section-boilerplate.2">
+        <h2 id="name-copyright-notice">
+<a href="#name-copyright-notice" class="section-name selfRef">Copyright Notice</a>
+        </h2>
+<p id="section-boilerplate.2-1">
+            Copyright (c) 2021 IETF Trust and the persons identified as the
+            document authors. All rights reserved.<a href="#section-boilerplate.2-1" class="pilcrow">¶</a></p>
+<p id="section-boilerplate.2-2">
+            This document is subject to BCP 78 and the IETF Trust's Legal
+            Provisions Relating to IETF Documents
+            (<span><a href="https://trustee.ietf.org/license-info">https://trustee.ietf.org/license-info</a></span>) in effect on the date of
+            publication of this document. Please review these documents
+            carefully, as they describe your rights and restrictions with
+            respect to this document. Code Components extracted from this
+            document must include Simplified BSD License text as described in
+            Section 4.e of the Trust Legal Provisions and are provided without
+            warranty as described in the Simplified BSD License.<a href="#section-boilerplate.2-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="toc">
+<section id="section-toc.1">
+        <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
+<a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
+        </h2>
+<nav class="toc"><ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="xref">2</a>.  <a href="#name-sframe-parameter-negotiatio" class="xref">SFrame Parameter Negotiation</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-sframe-parameter-selection" class="xref">SFrame Parameter Selection</a></p>
+</li>
+            </ul>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-sframe-key-management" class="xref">SFrame Key Management</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-multiple-sender-contexts" class="xref">Multiple Sender Contexts</a></p>
+</li>
+            </ul>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-acknowledgements" class="xref">Acknowledgements</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
+</li>
+        </ul>
+</nav>
+</section>
+</div>
+<div id="introduction">
+<section id="section-1">
+      <h2 id="name-introduction">
+<a href="#section-1" class="section-number selfRef">1. </a><a href="#name-introduction" class="section-name selfRef">Introduction</a>
+      </h2>
+<p id="section-1-1">Secure Frames (SFrame) defines a compact scheme for encrypting real-time media
+<span>[<a href="#I-D.omara-sframe" class="xref">I-D.omara-sframe</a>]</span>.  In order for SFrame to address cases where media are
+exchanged among many participants (e.g., real-time conferencing), it needs to be
+augmented with a group key management protocol.  The Messaging Layer Security
+(MLS) protocol <span>[<a href="#I-D.ietf-mls-protocol" class="xref">I-D.ietf-mls-protocol</a>]</span> provides continuous group
+authenticated key exchange.  MLS provides several important security properties
+<span>[<a href="#I-D.ietf-mls-architecture" class="xref">I-D.ietf-mls-architecture</a>]</span>:<a href="#section-1-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-1-2.1">Group Key Exchange: All members of the group at a given time know a secret key
+that is inaccessible to parties outside the group.<a href="#section-1-2.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-1-2.2">Authentication of group members: Each member of the group can authenticate the
+other members of the group.<a href="#section-1-2.2" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-1-2.3">Group Agreement: The members of the group all agree on the identities of the
+participants in the group.<a href="#section-1-2.3" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-1-2.4">Forward Secrecy: There are protocol events such that if a member's state is
+compromised after the event, group secrets created before the event are safe.<a href="#section-1-2.4" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-1-2.5">Post-compromise Security: There are protocol events such that if a member's
+state is compromised before the event, the group secrets created after the
+event are safe.<a href="#section-1-2.5" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-1-3">When a real-time session uses MLS as the basis for SFrame keys, these security
+properties apply to real-time media as well.  In the remainder of this document,
+we define how to use the secrets produced by MLS to generate the keys required
+by SFrame.<a href="#section-1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="sframe-parameter-negotiation">
+<section id="section-2">
+      <h2 id="name-sframe-parameter-negotiatio">
+<a href="#section-2" class="section-number selfRef">2. </a><a href="#name-sframe-parameter-negotiatio" class="section-name selfRef">SFrame Parameter Negotiation</a>
+      </h2>
+<p id="section-2-1">In order to interoperate, the sender and receiver(s) of an SFrame payload need
+to agree on two parameters:<a href="#section-2-1" class="pilcrow">¶</a></p>
+<ul class="normal">
+<li class="normal" id="section-2-2.1">The SFrame ciphersuite<a href="#section-2-2.1" class="pilcrow">¶</a>
+</li>
+        <li class="normal" id="section-2-2.2">The number of bits <code>E</code> used to signal the epoch<a href="#section-2-2.2" class="pilcrow">¶</a>
+</li>
+      </ul>
+<p id="section-2-3">These parameters can be negotiated in MLS using the <code>sframe_parameters</code>
+extension.  An MLS participant advertises its supported ciphersuites in its
+KeyPackage.  The creator of the group chooses the values of these parameters for
+the group (possibly based on a set of KeyPackages) and advises them to new
+joiners in Welcome messages.<a href="#section-2-3" class="pilcrow">¶</a></p>
+<p id="section-2-4">```
+uint16 SFrameCipherSuite;<a href="#section-2-4" class="pilcrow">¶</a></p>
+<p id="section-2-5">struct {
+  SFrameCipherSuite cipher_suites&lt;0..255&gt;;
+} SFrameCapabilities;<a href="#section-2-5" class="pilcrow">¶</a></p>
+<p id="section-2-6">struct {
+  SFrameCipherSuite cipher_suite;
+  uint8 epoch_bits;
+} SFrameParameters;
+```<a href="#section-2-6" class="pilcrow">¶</a></p>
+<p id="section-2-7">The values allowed for <code>SFrameCipherSuite</code> are defined in <span>[<a href="#I-D.omara-sframe" class="xref">I-D.omara-sframe</a>]</span>
+and the IANA registries it references.<a href="#section-2-7" class="pilcrow">¶</a></p>
+<p id="section-2-8">When an extension of type <code>sframe_parameters</code> appears in an MLS KeyPackage, the
+extension data field MUST contain an SFrameCapabilities object.  When such an
+extension appears in a Welcome message, it MUST contain an SFrameParameters
+object.  The ciphersuite values MUST represent valid SFrame ciphersuites.<a href="#section-2-8" class="pilcrow">¶</a></p>
+<p id="section-2-9">The SFrameParameters object for a group, if present, MUST be included in the
+GroupContext for the group, as an extension of type <code>sframe_parameters</code>.  This
+ensures that the members of the group agree on the SFrame parameters associated
+to the group.<a href="#section-2-9" class="pilcrow">¶</a></p>
+<div id="sframe-parameter-selection">
+<section id="section-2.1">
+        <h3 id="name-sframe-parameter-selection">
+<a href="#section-2.1" class="section-number selfRef">2.1. </a><a href="#name-sframe-parameter-selection" class="section-name selfRef">SFrame Parameter Selection</a>
+        </h3>
+<p id="section-2.1-1">Just as with MLS ciphersuite selection, the creator of an MLS group chooses the
+SFrame parameters to be used for the group.  The parameters are then fixed for
+the lifetime of the group.<a href="#section-2.1-1" class="pilcrow">¶</a></p>
+<p id="section-2.1-2">The creator of the group needs to choose a ciphersuite and an <code>epoch_bits</code>
+value.  The ciphersuite SHOULD be chosen from among those supported by the
+members of the group, as expressed by those members' key packages.  Members that
+don't support the chosen ciphersuite will not be able to send or receive
+SFrame-encrypted media.<a href="#section-2.1-2" class="pilcrow">¶</a></p>
+<p id="section-2.1-3">As discussed below, the <code>epoch_bits</code> field effectively bounds the rate at which
+the epoch can change, at the cost of possible growth in the KID field.
+Applications SHOULD NOT use <code>epoch_bits = 0</code>, unless they have an external
+signal for which epoch's keys are in use.  Otherwise, applications should choose
+a value for <code>epoch_bits</code> such that they expect to never have more than
+<code>2^epoch_bits</code> epochs active at once.  That is, by the time the key for epoch <code>k +
+2^epoch_bits</code> is distributed, all senders should have stopped sending with epoch
+<code>k</code>.<a href="#section-2.1-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="sframe-key-management">
+<section id="section-3">
+      <h2 id="name-sframe-key-management">
+<a href="#section-3" class="section-number selfRef">3. </a><a href="#name-sframe-key-management" class="section-name selfRef">SFrame Key Management</a>
+      </h2>
+<p id="section-3-1">MLS creates a linear sequence of keys, each of which is shared among the members
+of a group at a given point in time.  When a member joins or leaves the group, a
+new key is produced that is known only to the augmented or reduced group.  Each
+step in the lifetime of the group is know as an "epoch", and each member of the
+group is assigned an "index" that is constant for the time they are in the
+group.<a href="#section-3-1" class="pilcrow">¶</a></p>
+<p id="section-3-2">In SFrame, we derive per-sender <code>base\_key</code> values from the group secret for an
+epoch, and use the KID field to signal the epoch and sender index.  First, we
+use the MLS exporter to compute a shared SFrame secret for the epoch.<a href="#section-3-2" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-3-3">
+<pre>
+sframe_epoch_secret = MLS-Exporter("SFrame 10 MLS", "", AEAD.Nk)
+
+sender_base_key[index] = HKDF-Expand(sframe_epoch_secret,
+                           encode_big_endian(index, 8), AEAD.Nk)
+</pre><a href="#section-3-3" class="pilcrow">¶</a>
+</div>
+<p id="section-3-4">[[ OPEN ISSUE: MLS has its own "secret tree" that provides better forward
+secrecy properties within an epoch.  (This scheme provides none.)  An
+alternative approach would be to re-use the MLS secret tree, either directly or
+as a data structure. ]]<a href="#section-3-4" class="pilcrow">¶</a></p>
+<p id="section-3-5">The Key ID (KID) field in the SFrame header provides the epoch and index values
+that are needed to generate the appropriate key from the MLS key schedule.<a href="#section-3-5" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-3-6">
+<pre>
+KID = (sender_index &lt;&lt; E) + (epoch % (1 &lt;&lt; E))
+</pre><a href="#section-3-6" class="pilcrow">¶</a>
+</div>
+<p id="section-3-7">For compactness, do not send the whole epoch number.  Instead, we send only its
+low-order E bits.  The participants in the group MUST agree on the value of E
+for a given session, through some negotiation not specified here.<a href="#section-3-7" class="pilcrow">¶</a></p>
+<p id="section-3-8">Note that E effectively defines a re-ordering window, since no more than 2^E
+epoch can be active at a given time.  The better the participants are in sync
+with regard to key roll-over, and the less reordering of SFrame-protected
+payloads by the network, the fewer bits of epoch are necessary.<a href="#section-3-8" class="pilcrow">¶</a></p>
+<p id="section-3-9">Receivers MUST be prepared for the epoch counter to roll over, removing an old
+epoch when a new epoch with the same E lower bits is introduced.<a href="#section-3-9" class="pilcrow">¶</a></p>
+<p id="section-3-10">[[ OPEN ISSUE: There might be some considerations for new joiners.  Some trial
+decryption might be necessary to detect whether you're in epoch N or in epoch N
++ 1 &lt;&lt; E. ]]<a href="#section-3-10" class="pilcrow">¶</a></p>
+<p id="section-3-11">Once an SFrame stack has been provisioned with the <code>sframe_epoch_secret</code> for an
+epoch, it can compute the required KIDs and <code>sender_base_key</code> values on demand,
+as it needs to encrypt/decrypt for a given member.<a href="#section-3-11" class="pilcrow">¶</a></p>
+<div class="artwork art-text alignLeft" id="section-3-12">
+<pre>
+        ...
+         |
+Epoch 17 +--+-- index=33 -&gt; KID = 0x211
+         |  |
+         |  +-- index=51 -&gt; KID = 0x331
+         |
+         |
+Epoch 16 +--+-- index=2 --&gt; KID = 0x20
+         |
+         |
+Epoch 15 +--+-- index=3 --&gt; KID = 0x3f
+         |  |
+         |  +-- index=5 --&gt; KID = 0x5f
+         |
+         |
+Epoch 14 +--+-- index=3 --&gt; KID = 0x3e
+         |  |
+         |  +-- index=7 --&gt; KID = 0x7e
+         |  |
+         |  +-- index=20 -&gt; KID = 0x14e
+         |
+        ...
+</pre><a href="#section-3-12" class="pilcrow">¶</a>
+</div>
+<p id="section-3-13">MLS also provides an authenticated signing key pair for each participant.  When
+SFrame uses signatures, these are the keys used to generate SFrame signatures.<a href="#section-3-13" class="pilcrow">¶</a></p>
+<div id="multiple-sender-contexts">
+<section id="section-3.1">
+        <h3 id="name-multiple-sender-contexts">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-multiple-sender-contexts" class="section-name selfRef">Multiple Sender Contexts</a>
+        </h3>
+<p id="section-3.1-1">Real-time media systems often have strong decoupling between media sources after
+initial setup, including things like providing separate SRTP contexts for
+different media sources.  In SRTP, this is safe because the RTP SSRC is included
+in the nonce computation.  With the system defined here, however, the key and
+nonce only depend on the secret and the sender ID in the KID, so having multiple
+contexts with the same secret and KID leads to nonce reuse.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">In order to support this situation, a sender MAY choose to use the high-order
+bits of the KID field to provide an additional context distinguisher.  These
+bits will be interpreted as part of the sender index by receivers, so different
+keys and independent nonce streams will be derived per context.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">A sender sending context IDs in this way MUST reserve S bits for the sender ID,
+such that any sender index in the group can be expressed in S bits.  That is, it
+MUST be the case that:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4"><code>
+group_size - 1 &lt; (1 &lt;&lt; S)
+</code><a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">Thus, for a group of a given size, the sender may use up to 64 - S - E bits of the KID
+field to provide additional context, at the expense of having to transmit a
+longer KID field.  The resulting KID value has the following form:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6"><code>
+                        S bits   E bits
+                       &lt;------&gt; &lt;------&gt;
++--------+------------+--------+-------+
+| 000... | Context ID | Index  | Epoch |
++--------+------------+--------+-------+
+</code><a href="#section-3.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
+</section>
+</div>
+<div id="security-considerations">
+<section id="section-4">
+      <h2 id="name-security-considerations">
+<a href="#section-4" class="section-number selfRef">4. </a><a href="#name-security-considerations" class="section-name selfRef">Security Considerations</a>
+      </h2>
+<p id="section-4-1">The security properties provided by MLS are discussed in detail in
+<span>[<a href="#I-D.ietf-mls-architecture" class="xref">I-D.ietf-mls-architecture</a>]</span> and <span>[<a href="#I-D.ietf-mls-protocol" class="xref">I-D.ietf-mls-protocol</a>]</span>.  This document
+extends those guarantees to SFrame.<a href="#section-4-1" class="pilcrow">¶</a></p>
+<p id="section-4-2">It should be noted that the per-sender keys derived here do not provide
+per-sender authentication, since any member of the group could derive the same
+keys (as indeed they must in order to decrypt the protected payload).
+Per-sender keys are derived only to avoid nonce collision among multiple
+unsynchronized senders.  So the authentication limitations of SFrame remain:
+There is per-sender authentication only when signatures are used.  Otherwise,
+SFrame only authenticates membership in the group, and members are free to
+impersonate each other.<a href="#section-4-2" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="iana-considerations">
+<section id="section-5">
+      <h2 id="name-iana-considerations">
+<a href="#section-5" class="section-number selfRef">5. </a><a href="#name-iana-considerations" class="section-name selfRef">IANA Considerations</a>
+      </h2>
+<p id="section-5-1">This document requests that IANA add an entry to the MLS Extension Types
+registry, with the following values:<a href="#section-5-1" class="pilcrow">¶</a></p>
+<table class="center" id="table-1">
+        <caption><a href="#table-1" class="selfRef">Table 1</a></caption>
+<thead>
+          <tr>
+            <th class="text-left" rowspan="1" colspan="1">Value</th>
+            <th class="text-left" rowspan="1" colspan="1">Name</th>
+            <th class="text-left" rowspan="1" colspan="1">Message(s)</th>
+            <th class="text-left" rowspan="1" colspan="1">Recommended</th>
+            <th class="text-left" rowspan="1" colspan="1">Reference</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td class="text-left" rowspan="1" colspan="1">TBD</td>
+            <td class="text-left" rowspan="1" colspan="1">sframe_parameters</td>
+            <td class="text-left" rowspan="1" colspan="1">KP, GI</td>
+            <td class="text-left" rowspan="1" colspan="1">Y</td>
+            <td class="text-left" rowspan="1" colspan="1">RFC XXXX</td>
+          </tr>
+        </tbody>
+      </table>
+<p id="section-5-3">RFC EDITOR: Please replace XXXX throughout with the RFC number assigned to
+this document.<a href="#section-5-3" class="pilcrow">¶</a></p>
+</section>
+</div>
+<section id="section-6">
+      <h2 id="name-normative-references">
+<a href="#section-6" class="section-number selfRef">6. </a><a href="#name-normative-references" class="section-name selfRef">Normative References</a>
+      </h2>
+<dl class="references">
+<dt id="I-D.ietf-mls-architecture">[I-D.ietf-mls-architecture]</dt>
+      <dd>
+<span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Inguva, S.</span>, <span class="refAuthor">Kwon, A.</span>, and <span class="refAuthor">A. Duric</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Architecture"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-architecture-06</span>, <time datetime="2021-03-08" class="refDate">8 March 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-mls-architecture-06.txt">https://datatracker.ietf.org/doc/html/draft-ietf-mls-architecture-06.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.ietf-mls-protocol">[I-D.ietf-mls-protocol]</dt>
+      <dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Cohn-Gordon, K.</span>, and <span class="refAuthor">R. Robert</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-protocol-11</span>, <time datetime="2020-12-22" class="refDate">22 December 2020</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-mls-protocol-11.txt">https://datatracker.ietf.org/doc/html/draft-ietf-mls-protocol-11.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+<dt id="I-D.omara-sframe">[I-D.omara-sframe]</dt>
+    <dd>
+<span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Uberti, J.</span>, <span class="refAuthor">GOUAILLARD, A.</span>, and <span class="refAuthor">S. G. Murillo</span>, <span class="refTitle">"Secure Frame (SFrame)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-omara-sframe-02</span>, <time datetime="2021-03-29" class="refDate">29 March 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-omara-sframe-02.txt">https://datatracker.ietf.org/doc/html/draft-omara-sframe-02.txt</a>&gt;</span>. </dd>
+<dd class="break"></dd>
+</dl>
+</section>
+<div id="acknowledgements">
+<section id="section-appendix.a">
+      <h2 id="name-acknowledgements">
+<a href="#section-appendix.a" class="section-number selfRef">Appendix A. </a><a href="#name-acknowledgements" class="section-name selfRef">Acknowledgements</a>
+      </h2>
+<p id="section-appendix.a-1">TODO<a href="#section-appendix.a-1" class="pilcrow">¶</a></p>
+</section>
+</div>
+<div id="authors-addresses">
+<section id="section-appendix.b">
+      <h2 id="name-authors-addresses">
+<a href="#name-authors-addresses" class="section-name selfRef">Authors' Addresses</a>
+      </h2>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Richard Barnes</span></div>
+<div dir="auto" class="left"><span class="org">Cisco</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:rlb@ipv.sx" class="email">rlb@ipv.sx</a>
+</div>
+</address>
+<address class="vcard">
+        <div dir="auto" class="left"><span class="fn nameRole">Raphael Robert</span></div>
+<div dir="auto" class="left"><span class="org">Wire</span></div>
+<div class="email">
+<span>Email:</span>
+<a href="mailto:raphael@wire.com" class="email">raphael@wire.com</a>
+</div>
+</address>
+</section>
+</div>
+<script>const toc = document.getElementById("toc");
+toc.querySelector("h2").addEventListener("click", e => {
+  toc.classList.toggle("active");
+});
+toc.querySelector("nav").addEventListener("click", e => {
+  toc.classList.remove("active");
+});
+</script>
+</body>
+</html>
