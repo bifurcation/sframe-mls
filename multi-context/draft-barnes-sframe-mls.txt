@@ -5,8 +5,8 @@
 Network Working Group                                          R. Barnes
 Internet-Draft                                                     Cisco
 Intended status: Informational                                 R. Robert
-Expires: 16 August 2021                                             Wire
-                                                        12 February 2021
+Expires: 24 October 2021                                            Wire
+                                                           22 April 2021
 
 
     Using Messaging Layer Security (MLS) to Provide Keys for SFrame
@@ -46,7 +46,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 16 August 2021.
+   This Internet-Draft will expire on 24 October 2021.
 
 Copyright Notice
 
@@ -68,6 +68,7 @@ Table of Contents
    2.  SFrame Parameter Negotiation
      2.1.  SFrame Parameter Selection
    3.  SFrame Key Management
+     3.1.  Multiple Sender Contexts
    4.  Security Considerations
    5.  IANA Considerations
    6.  Normative References
@@ -185,7 +186,7 @@ Table of Contents
    sframe_epoch_secret = MLS-Exporter("SFrame 10 MLS", "", AEAD.Nk)
 
    sender_base_key[index] = HKDF-Expand(sframe_epoch_secret,
-                              encode_big_endian(index, 4), AEAD.Nk)
+                              encode_big_endian(index, 8), AEAD.Nk)
 
    [[ OPEN ISSUE: MLS has its own "secret tree" that provides better
    forward secrecy properties within an epoch.  (This scheme provides
@@ -249,6 +250,37 @@ Table of Contents
    participant.  When SFrame uses signatures, these are the keys used to
    generate SFrame signatures.
 
+3.1.  Multiple Sender Contexts
+
+   Real-time media systems often have strong decoupling between media
+   sources after initial setup, including things like providing separate
+   SRTP contexts for different media sources.  In SRTP, this is safe
+   because the RTP SSRC is included in the nonce computation.  With the
+   system defined here, however, the key and nonce only depend on the
+   secret and the sender ID in the KID, so having multiple contexts with
+   the same secret and KID leads to nonce reuse.
+
+   In order to support this situation, a sender MAY choose to use the
+   high-order bits of the KID field to provide an additional context
+   distinguisher.  These bits will be interpreted as part of the sender
+   index by receivers, so different keys and independent nonce streams
+   will be derived per context.
+
+   A sender sending context IDs in this way MUST reserve S bits for the
+   sender ID, such that any sender index in the group can be expressed
+   in S bits.  That is, it MUST be the case that:
+
+   "group_size - 1 < (1 << S)"
+
+   Thus, for a group of a given size, the sender may use up to 64 - S -
+   E bits of the KID field to provide additional context, at the expense
+   of having to transmit a longer KID field.  The resulting KID value
+   has the following form:
+
+   "S bits E bits <------> <------>
+   +--------+------------+--------+-------+ | 000... | Context ID |
+   Index | Epoch | +--------+------------+--------+-------+"
+
 4.  Security Considerations
 
    The security properties provided by MLS are discussed in detail in
@@ -287,24 +319,24 @@ Table of Contents
               Omara, E., Beurdouche, B., Rescorla, E., Inguva, S., Kwon,
               A., and A. Duric, "The Messaging Layer Security (MLS)
               Architecture", Work in Progress, Internet-Draft, draft-
-              ietf-mls-architecture-05, 26 July 2020,
-              <http://www.ietf.org/internet-drafts/draft-ietf-mls-
-              architecture-05.txt>.
+              ietf-mls-architecture-06, 8 March 2021,
+              <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
+              architecture-06.txt>.
 
    [I-D.ietf-mls-protocol]
               Barnes, R., Beurdouche, B., Millican, J., Omara, E., Cohn-
               Gordon, K., and R. Robert, "The Messaging Layer Security
               (MLS) Protocol", Work in Progress, Internet-Draft, draft-
               ietf-mls-protocol-11, 22 December 2020,
-              <http://www.ietf.org/internet-drafts/draft-ietf-mls-
+              <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
               protocol-11.txt>.
 
    [I-D.omara-sframe]
-              Omara, E., Uberti, J., Gouaillard, A., and S. Murillo,
+              Omara, E., Uberti, J., GOUAILLARD, A., and S. G. Murillo,
               "Secure Frame (SFrame)", Work in Progress, Internet-Draft,
-              draft-omara-sframe-01, 16 November 2020,
-              <http://www.ietf.org/internet-drafts/draft-omara-sframe-
-              01.txt>.
+              draft-omara-sframe-02, 29 March 2021,
+              <https://datatracker.ietf.org/doc/html/draft-omara-sframe-
+              02.txt>.
 
 Appendix A.  Acknowledgements
 

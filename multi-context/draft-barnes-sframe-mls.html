@@ -17,12 +17,12 @@ participants in a media session to authenticate each other and agree on a group
 key.  This document defines how the group keys produced by MLS can be used with
 SFrame to secure real-time sessions for groups. 
     " name="description">
-<meta content="xml2rfc 3.5.0" name="generator">
+<meta content="xml2rfc 3.7.0" name="generator">
 <meta content="Internet-Draft" name="keyword">
 <meta content="draft-barnes-sframe-mls-latest" name="ietf.draft">
 <!-- Generator version information:
-  xml2rfc 3.5.0
-    Python 3.8.7
+  xml2rfc 3.7.0
+    Python 3.8.8
     appdirs 1.4.4
     ConfigArgParse 1.2.3
     google-i18n-address 2.4.0
@@ -30,7 +30,7 @@ SFrame to secure real-time sessions for groups.
     intervaltree 3.1.0
     Jinja2 2.11.2
     kitchen 1.2.6
-    lxml 4.6.2
+    lxml 4.6.3
     pycountry 20.7.3
     pyflakes 2.2.0
     PyYAML 5.4.1
@@ -845,11 +845,11 @@ address div.right {
 <thead><tr>
 <td class="left">Internet-Draft</td>
 <td class="center">MLS-SFrame</td>
-<td class="right">February 2021</td>
+<td class="right">April 2021</td>
 </tr></thead>
 <tfoot><tr>
 <td class="left">Barnes &amp; Robert</td>
-<td class="center">Expires 16 August 2021</td>
+<td class="center">Expires 24 October 2021</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -862,12 +862,12 @@ address div.right {
 <dd class="internet-draft">draft-barnes-sframe-mls-latest</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2021-02-12" class="published">12 February 2021</time>
+<time datetime="2021-04-22" class="published">22 April 2021</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Informational</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2021-08-16">16 August 2021</time></dd>
+<dd class="expires"><time datetime="2021-10-24">24 October 2021</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -920,7 +920,7 @@ SFrame to secure real-time sessions for groups.<a href="#section-abstract-1" cla
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 16 August 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 24 October 2021.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -948,35 +948,40 @@ SFrame to secure real-time sessions for groups.<a href="#section-abstract-1" cla
         <a href="#" onclick="scroll(0,0)" class="toplink">▲</a><h2 id="name-table-of-contents">
 <a href="#name-table-of-contents" class="section-name selfRef">Table of Contents</a>
         </h2>
-<nav class="toc"><ul class="compact ulEmpty toc">
-<li class="compact ulEmpty toc" id="section-toc.1-1.1">
-            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a><a href="#section-toc.1-1.1.1" class="pilcrow">¶</a></p>
+<nav class="toc"><ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.1">
+            <p id="section-toc.1-1.1.1" class="keepWithNext"><a href="#section-1" class="xref">1</a>.  <a href="#name-introduction" class="xref">Introduction</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.2">
-            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="xref">2</a>.  <a href="#name-sframe-parameter-negotiatio" class="xref">SFrame Parameter Negotiation</a><a href="#section-toc.1-1.2.1" class="pilcrow">¶</a></p>
-<ul class="compact ulEmpty toc">
-<li class="compact ulEmpty toc" id="section-toc.1-1.2.2.1">
-                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-sframe-parameter-selection" class="xref">SFrame Parameter Selection</a><a href="#section-toc.1-1.2.2.1.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.2">
+            <p id="section-toc.1-1.2.1" class="keepWithNext"><a href="#section-2" class="xref">2</a>.  <a href="#name-sframe-parameter-negotiatio" class="xref">SFrame Parameter Negotiation</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.2.2.1">
+                <p id="section-toc.1-1.2.2.1.1" class="keepWithNext"><a href="#section-2.1" class="xref">2.1</a>.  <a href="#name-sframe-parameter-selection" class="xref">SFrame Parameter Selection</a></p>
 </li>
             </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.3">
-            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-sframe-key-management" class="xref">SFrame Key Management</a><a href="#section-toc.1-1.3.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.3">
+            <p id="section-toc.1-1.3.1"><a href="#section-3" class="xref">3</a>.  <a href="#name-sframe-key-management" class="xref">SFrame Key Management</a></p>
+<ul class="toc compact ulEmpty">
+<li class="toc compact ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="xref">3.1</a>.  <a href="#name-multiple-sender-contexts" class="xref">Multiple Sender Contexts</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.4">
-            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a><a href="#section-toc.1-1.4.1" class="pilcrow">¶</a></p>
+            </ul>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.5">
-            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a><a href="#section-toc.1-1.5.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.4">
+            <p id="section-toc.1-1.4.1"><a href="#section-4" class="xref">4</a>.  <a href="#name-security-considerations" class="xref">Security Considerations</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.6">
-            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-normative-references" class="xref">Normative References</a><a href="#section-toc.1-1.6.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.5">
+            <p id="section-toc.1-1.5.1"><a href="#section-5" class="xref">5</a>.  <a href="#name-iana-considerations" class="xref">IANA Considerations</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.7">
-            <p id="section-toc.1-1.7.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-acknowledgements" class="xref">Acknowledgements</a><a href="#section-toc.1-1.7.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.6">
+            <p id="section-toc.1-1.6.1"><a href="#section-6" class="xref">6</a>.  <a href="#name-normative-references" class="xref">Normative References</a></p>
 </li>
-          <li class="compact ulEmpty toc" id="section-toc.1-1.8">
-            <p id="section-toc.1-1.8.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a><a href="#section-toc.1-1.8.1" class="pilcrow">¶</a></p>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.7">
+            <p id="section-toc.1-1.7.1"><a href="#section-appendix.a" class="xref">Appendix A</a>.  <a href="#name-acknowledgements" class="xref">Acknowledgements</a></p>
+</li>
+          <li class="toc compact ulEmpty" id="section-toc.1-1.8">
+            <p id="section-toc.1-1.8.1"><a href="#section-appendix.b" class="xref"></a><a href="#name-authors-addresses" class="xref">Authors' Addresses</a></p>
 </li>
         </ul>
 </nav>
@@ -1100,7 +1105,7 @@ use the MLS exporter to compute a shared SFrame secret for the epoch.<a href="#s
 sframe_epoch_secret = MLS-Exporter("SFrame 10 MLS", "", AEAD.Nk)
 
 sender_base_key[index] = HKDF-Expand(sframe_epoch_secret,
-                           encode_big_endian(index, 4), AEAD.Nk)
+                           encode_big_endian(index, 8), AEAD.Nk)
 </pre><a href="#section-3-3" class="pilcrow">¶</a>
 </div>
 <p id="section-3-4">[[ OPEN ISSUE: MLS has its own "secret tree" that provides better forward
@@ -1157,6 +1162,39 @@ Epoch 14 +--+-- index=3 --&gt; KID = 0x3e
 </div>
 <p id="section-3-13">MLS also provides an authenticated signing key pair for each participant.  When
 SFrame uses signatures, these are the keys used to generate SFrame signatures.<a href="#section-3-13" class="pilcrow">¶</a></p>
+<div id="multiple-sender-contexts">
+<section id="section-3.1">
+        <h3 id="name-multiple-sender-contexts">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-multiple-sender-contexts" class="section-name selfRef">Multiple Sender Contexts</a>
+        </h3>
+<p id="section-3.1-1">Real-time media systems often have strong decoupling between media sources after
+initial setup, including things like providing separate SRTP contexts for
+different media sources.  In SRTP, this is safe because the RTP SSRC is included
+in the nonce computation.  With the system defined here, however, the key and
+nonce only depend on the secret and the sender ID in the KID, so having multiple
+contexts with the same secret and KID leads to nonce reuse.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">In order to support this situation, a sender MAY choose to use the high-order
+bits of the KID field to provide an additional context distinguisher.  These
+bits will be interpreted as part of the sender index by receivers, so different
+keys and independent nonce streams will be derived per context.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">A sender sending context IDs in this way MUST reserve S bits for the sender ID,
+such that any sender index in the group can be expressed in S bits.  That is, it
+MUST be the case that:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4"><code>
+group_size - 1 &lt; (1 &lt;&lt; S)
+</code><a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">Thus, for a group of a given size, the sender may use up to 64 - S - E bits of the KID
+field to provide additional context, at the expense of having to transmit a
+longer KID field.  The resulting KID value has the following form:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6"><code>
+                        S bits   E bits
+                       &lt;------&gt; &lt;------&gt;
++--------+------------+--------+-------+
+| 000... | Context ID | Index  | Epoch |
++--------+------------+--------+-------+
+</code><a href="#section-3.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="security-considerations">
@@ -1216,15 +1254,15 @@ this document.<a href="#section-5-3" class="pilcrow">¶</a></p>
 <dl class="references">
 <dt id="I-D.ietf-mls-architecture">[I-D.ietf-mls-architecture]</dt>
       <dd>
-<span class="refAuthor">Omara, E.</span><span class="refAuthor">, Beurdouche, B.</span><span class="refAuthor">, Rescorla, E.</span><span class="refAuthor">, Inguva, S.</span><span class="refAuthor">, Kwon, A.</span><span class="refAuthor">, and A. Duric</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Architecture"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-architecture-05</span>, <time datetime="2020-07-26" class="refDate">26 July 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-mls-architecture-05.txt">http://www.ietf.org/internet-drafts/draft-ietf-mls-architecture-05.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Rescorla, E.</span>, <span class="refAuthor">Inguva, S.</span>, <span class="refAuthor">Kwon, A.</span>, and <span class="refAuthor">A. Duric</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Architecture"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-architecture-06</span>, <time datetime="2021-03-08" class="refDate">8 March 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-mls-architecture-06.txt">https://datatracker.ietf.org/doc/html/draft-ietf-mls-architecture-06.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.ietf-mls-protocol">[I-D.ietf-mls-protocol]</dt>
       <dd>
-<span class="refAuthor">Barnes, R.</span><span class="refAuthor">, Beurdouche, B.</span><span class="refAuthor">, Millican, J.</span><span class="refAuthor">, Omara, E.</span><span class="refAuthor">, Cohn-Gordon, K.</span><span class="refAuthor">, and R. Robert</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-protocol-11</span>, <time datetime="2020-12-22" class="refDate">22 December 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-ietf-mls-protocol-11.txt">http://www.ietf.org/internet-drafts/draft-ietf-mls-protocol-11.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Barnes, R.</span>, <span class="refAuthor">Beurdouche, B.</span>, <span class="refAuthor">Millican, J.</span>, <span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Cohn-Gordon, K.</span>, and <span class="refAuthor">R. Robert</span>, <span class="refTitle">"The Messaging Layer Security (MLS) Protocol"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-ietf-mls-protocol-11</span>, <time datetime="2020-12-22" class="refDate">22 December 2020</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-ietf-mls-protocol-11.txt">https://datatracker.ietf.org/doc/html/draft-ietf-mls-protocol-11.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 <dt id="I-D.omara-sframe">[I-D.omara-sframe]</dt>
     <dd>
-<span class="refAuthor">Omara, E.</span><span class="refAuthor">, Uberti, J.</span><span class="refAuthor">, Gouaillard, A.</span><span class="refAuthor">, and S. Murillo</span>, <span class="refTitle">"Secure Frame (SFrame)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-omara-sframe-01</span>, <time datetime="2020-11-16" class="refDate">16 November 2020</time>, <span>&lt;<a href="http://www.ietf.org/internet-drafts/draft-omara-sframe-01.txt">http://www.ietf.org/internet-drafts/draft-omara-sframe-01.txt</a>&gt;</span>. </dd>
+<span class="refAuthor">Omara, E.</span>, <span class="refAuthor">Uberti, J.</span>, <span class="refAuthor">GOUAILLARD, A.</span>, and <span class="refAuthor">S. G. Murillo</span>, <span class="refTitle">"Secure Frame (SFrame)"</span>, <span class="refContent">Work in Progress</span>, <span class="seriesInfo">Internet-Draft, draft-omara-sframe-02</span>, <time datetime="2021-03-29" class="refDate">29 March 2021</time>, <span>&lt;<a href="https://datatracker.ietf.org/doc/html/draft-omara-sframe-02.txt">https://datatracker.ietf.org/doc/html/draft-omara-sframe-02.txt</a>&gt;</span>. </dd>
 <dd class="break"></dd>
 </dl>
 </section>
