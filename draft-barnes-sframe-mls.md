@@ -206,6 +206,40 @@ Epoch 14 +--+-- index=3 --> KID = 0x3e
 MLS also provides an authenticated signing key pair for each participant.  When
 SFrame uses signatures, these are the keys used to generate SFrame signatures.
 
+## Multiple Sender Contexts
+
+Real-time media systems often have strong decoupling between media sources after
+initial setup, including things like providing separate SRTP contexts for
+different media sources.  In SRTP, this is safe because the RTP SSRC is included
+in the nonce computation.  With the system defined here, however, the key and
+nonce only depend on the secret and the sender ID in the KID, so having multiple
+contexts with the same secret and KID leads to nonce reuse.
+
+In order to support this situation, a sender MAY choose to use the high-order
+bits of the KID field to provide an additional context distinguisher.  These
+bits will be interpreted as part of the sender index by receivers, so different
+keys and independent nonce streams will be derived per context.
+
+A sender sending context IDs in this way MUST reserve S bits for the sender ID,
+such that any sender index in the group can be expressed in S bits.  That is, it
+MUST be the case that:
+
+```
+group_size - 1 < (1 << S)
+```
+
+Thus, for a group of a given size, the sender may use up to 64 - S - E bits of the KID
+field to provide additional context, at the expense of having to transmit a
+longer KID field.  The resulting KID value has the following form:
+
+```
+                        S bits   E bits
+                       <------> <------>
++--------+------------+--------+-------+
+| 000... | Context ID | Index  | Epoch |
++--------+------------+--------+-------+
+```
+
 # Security Considerations
 
 The security properties provided by MLS are discussed in detail in
