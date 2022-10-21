@@ -226,7 +226,7 @@ group extend to a group of call participants, as long as all members of the MLS
 group are participants in the call. It is recommended to keep the membership 
 of the MLS group as tight as possible, i.e. members should only be added once 
 they become call participants and evicted as soon as they drop off the call. 
-If the application already uses MLS groups that are more long terme (e.g. chat 
+If the application already uses MLS groups that are more long term (e.g. chat 
 groups), it is recommended to set up a new ephemeral MLS group for the call by 
 using the sub-group branching mechanism provided by the MLS protocol to link the 
 two groups cryptographically.
