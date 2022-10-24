@@ -1165,6 +1165,11 @@ SFrame to secure real-time sessions for groups.<a href="#section-abstract-1" cla
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3">
             <p id="section-toc.1-1.3.1"><a href="#section-3" class="auto internal xref">3</a>.  <a href="#name-sframe-key-management" class="internal xref">SFrame Key Management</a></p>
+<ul class="compact toc ulBare ulEmpty">
+<li class="compact toc ulBare ulEmpty" id="section-toc.1-1.3.2.1">
+                <p id="section-toc.1-1.3.2.1.1"><a href="#section-3.1" class="auto internal xref">3.1</a>.  <a href="#name-multiple-sender-contexts" class="internal xref">Multiple Sender Contexts</a></p>
+</li>
+            </ul>
 </li>
           <li class="compact toc ulBare ulEmpty" id="section-toc.1-1.4">
             <p id="section-toc.1-1.4.1"><a href="#section-4" class="auto internal xref">4</a>.  <a href="#name-security-considerations" class="internal xref">Security Considerations</a></p>
@@ -1360,6 +1365,39 @@ Epoch 14 +--+-- index=3 --&gt; KID = 0x3e
 </div>
 <p id="section-3-13">MLS also provides an authenticated signing key pair for each participant.  When
 SFrame uses signatures, these are the keys used to generate SFrame signatures.<a href="#section-3-13" class="pilcrow">¶</a></p>
+<div id="multiple-sender-contexts">
+<section id="section-3.1">
+        <h3 id="name-multiple-sender-contexts">
+<a href="#section-3.1" class="section-number selfRef">3.1. </a><a href="#name-multiple-sender-contexts" class="section-name selfRef">Multiple Sender Contexts</a>
+        </h3>
+<p id="section-3.1-1">Real-time media systems often have strong decoupling between media sources after
+initial setup, including things like providing separate SRTP contexts for
+different media sources.  In SRTP, this is safe because the RTP SSRC is included
+in the nonce computation.  With the system defined here, however, the key and
+nonce only depend on the secret and the sender ID in the KID, so having multiple
+contexts with the same secret and KID leads to nonce reuse.<a href="#section-3.1-1" class="pilcrow">¶</a></p>
+<p id="section-3.1-2">In order to support this situation, a sender MAY choose to use the high-order
+bits of the KID field to provide an additional context distinguisher.  These
+bits will be interpreted as part of the sender index by receivers, so different
+keys and independent nonce streams will be derived per context.<a href="#section-3.1-2" class="pilcrow">¶</a></p>
+<p id="section-3.1-3">A sender sending context IDs in this way MUST reserve S bits for the sender ID,
+such that any sender index in the group can be expressed in S bits.  That is, it
+MUST be the case that:<a href="#section-3.1-3" class="pilcrow">¶</a></p>
+<p id="section-3.1-4"><code>
+group_size - 1 &lt; (1 &lt;&lt; S)
+</code><a href="#section-3.1-4" class="pilcrow">¶</a></p>
+<p id="section-3.1-5">Thus, for a group of a given size, the sender may use up to 64 - S - E bits of the KID
+field to provide additional context, at the expense of having to transmit a
+longer KID field.  The resulting KID value has the following form:<a href="#section-3.1-5" class="pilcrow">¶</a></p>
+<p id="section-3.1-6"><code>
+                        S bits   E bits
+                       &lt;------&gt; &lt;------&gt;
++--------+------------+--------+-------+
+| 000... | Context ID | Index  | Epoch |
++--------+------------+--------+-------+
+</code><a href="#section-3.1-6" class="pilcrow">¶</a></p>
+</section>
+</div>
 </section>
 </div>
 <div id="security-considerations">
