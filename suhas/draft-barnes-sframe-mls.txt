@@ -5,8 +5,10 @@
 Network Working Group                                          R. Barnes
 Internet-Draft                                                     Cisco
 Intended status: Informational                                 R. Robert
-Expires: 24 October 2021                                            Wire
-                                                           22 April 2021
+Expires: 27 April 2023                                                 -
+                                                           S. Nandakumar
+                                                                   Cisco
+                                                         24 October 2022
 
 
     Using Messaging Layer Security (MLS) to Provide Keys for SFrame
@@ -46,11 +48,11 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 24 October 2021.
+   This Internet-Draft will expire on 27 April 2023.
 
 Copyright Notice
 
-   Copyright (c) 2021 IETF Trust and the persons identified as the
+   Copyright (c) 2022 IETF Trust and the persons identified as the
    document authors.  All rights reserved.
 
    This document is subject to BCP 78 and the IETF Trust's Legal
@@ -58,9 +60,9 @@ Copyright Notice
    license-info) in effect on the date of publication of this document.
    Please review these documents carefully, as they describe your rights
    and restrictions with respect to this document.  Code Components
-   extracted from this document must include Simplified BSD License text
-   as described in Section 4.e of the Trust Legal Provisions and are
-   provided without warranty as described in the Simplified BSD License.
+   extracted from this document must include Revised BSD License text as
+   described in Section 4.e of the Trust Legal Provisions and are
+   provided without warranty as described in the Revised BSD License.
 
 Table of Contents
 
@@ -68,7 +70,6 @@ Table of Contents
    2.  SFrame Parameter Negotiation
      2.1.  SFrame Parameter Selection
    3.  SFrame Key Management
-     3.1.  Multiple Sender Contexts
    4.  Security Considerations
    5.  IANA Considerations
    6.  Normative References
@@ -115,14 +116,13 @@ Table of Contents
 
    *  The SFrame ciphersuite
 
-   *  The number of bits "E" used to signal the epoch
+   *  The number of bits E used to signal the epoch
 
-   These parameters can be negotiated in MLS using the
-   "sframe_parameters" extension.  An MLS participant advertises its
-   supported ciphersuites in its KeyPackage.  The creator of the group
-   chooses the values of these parameters for the group (possibly based
-   on a set of KeyPackages) and advises them to new joiners in Welcome
-   messages.
+   These parameters can be negotiated in MLS using the sframe_parameters
+   extension.  An MLS participant advertises its supported ciphersuites
+   in its KeyPackage.  The creator of the group chooses the values of
+   these parameters for the group (possibly based on a set of
+   KeyPackages) and advises them to new joiners in Welcome messages.
 
    ``` uint16 SFrameCipherSuite;
 
@@ -132,10 +132,10 @@ Table of Contents
    struct { SFrameCipherSuite cipher_suite; uint8 epoch_bits; }
    SFrameParameters; ```
 
-   The values allowed for "SFrameCipherSuite" are defined in
+   The values allowed for SFrameCipherSuite are defined in
    [I-D.omara-sframe] and the IANA registries it references.
 
-   When an extension of type "sframe_parameters" appears in an MLS
+   When an extension of type sframe_parameters appears in an MLS
    KeyPackage, the extension data field MUST contain an
    SFrameCapabilities object.  When such an extension appears in a
    Welcome message, it MUST contain an SFrameParameters object.  The
@@ -143,8 +143,8 @@ Table of Contents
 
    The SFrameParameters object for a group, if present, MUST be included
    in the GroupContext for the group, as an extension of type
-   "sframe_parameters".  This ensures that the members of the group
-   agree on the SFrame parameters associated to the group.
+   sframe_parameters.  This ensures that the members of the group agree
+   on the SFrame parameters associated to the group.
 
 2.1.  SFrame Parameter Selection
 
@@ -153,21 +153,19 @@ Table of Contents
    parameters are then fixed for the lifetime of the group.
 
    The creator of the group needs to choose a ciphersuite and an
-   "epoch_bits" value.  The ciphersuite SHOULD be chosen from among
-   those supported by the members of the group, as expressed by those
-   members' key packages.  Members that don't support the chosen
-   ciphersuite will not be able to send or receive SFrame-encrypted
-   media.
+   epoch_bits value.  The ciphersuite SHOULD be chosen from among those
+   supported by the members of the group, as expressed by those members'
+   key packages.  Members that don't support the chosen ciphersuite will
+   not be able to send or receive SFrame-encrypted media.
 
-   As discussed below, the "epoch_bits" field effectively bounds the
-   rate at which the epoch can change, at the cost of possible growth in
-   the KID field.  Applications SHOULD NOT use "epoch_bits = 0", unless
-   they have an external signal for which epoch's keys are in use.
-   Otherwise, applications should choose a value for "epoch_bits" such
-   that they expect to never have more than "2^epoch_bits" epochs active
-   at once.  That is, by the time the key for epoch "k + 2^epoch_bits"
-   is distributed, all senders should have stopped sending with epoch
-   "k".
+   As discussed below, the epoch_bits field effectively bounds the rate
+   at which the epoch can change, at the cost of possible growth in the
+   KID field.  Applications SHOULD NOT use epoch_bits = 0, unless they
+   have an external signal for which epoch's keys are in use.
+   Otherwise, applications should choose a value for epoch_bits such
+   that they expect to never have more than 2^epoch_bits epochs active
+   at once.  That is, by the time the key for epoch k + 2^epoch_bits is
+   distributed, all senders should have stopped sending with epoch k.
 
 3.  SFrame Key Management
 
@@ -178,7 +176,7 @@ Table of Contents
    is know as an "epoch", and each member of the group is assigned an
    "index" that is constant for the time they are in the group.
 
-   In SFrame, we derive per-sender "base\_key" values from the group
+   In SFrame, we derive per-sender base\_key values from the group
    secret for an epoch, and use the KID field to signal the epoch and
    sender index.  First, we use the MLS exporter to compute a shared
    SFrame secret for the epoch.
@@ -219,9 +217,9 @@ Table of Contents
    epoch N or in epoch N + 1 << E. ]]
 
    Once an SFrame stack has been provisioned with the
-   "sframe_epoch_secret" for an epoch, it can compute the required KIDs
-   and "sender_base_key" values on demand, as it needs to encrypt/
-   decrypt for a given member.
+   sframe_epoch_secret for an epoch, it can compute the required KIDs
+   and sender_base_key values on demand, as it needs to encrypt/decrypt
+   for a given member.
 
            ...
             |
@@ -250,37 +248,6 @@ Table of Contents
    participant.  When SFrame uses signatures, these are the keys used to
    generate SFrame signatures.
 
-3.1.  Multiple Sender Contexts
-
-   Real-time media systems often have strong decoupling between media
-   sources after initial setup, including things like providing separate
-   SRTP contexts for different media sources.  In SRTP, this is safe
-   because the RTP SSRC is included in the nonce computation.  With the
-   system defined here, however, the key and nonce only depend on the
-   secret and the sender ID in the KID, so having multiple contexts with
-   the same secret and KID leads to nonce reuse.
-
-   In order to support this situation, a sender MAY choose to use the
-   high-order bits of the KID field to provide an additional context
-   distinguisher.  These bits will be interpreted as part of the sender
-   index by receivers, so different keys and independent nonce streams
-   will be derived per context.
-
-   A sender sending context IDs in this way MUST reserve S bits for the
-   sender ID, such that any sender index in the group can be expressed
-   in S bits.  That is, it MUST be the case that:
-
-   "group_size - 1 < (1 << S)"
-
-   Thus, for a group of a given size, the sender may use up to 64 - S -
-   E bits of the KID field to provide additional context, at the expense
-   of having to transmit a longer KID field.  The resulting KID value
-   has the following form:
-
-   "S bits E bits <------> <------>
-   +--------+------------+--------+-------+ | 000... | Context ID |
-   Index | Epoch | +--------+------------+--------+-------+"
-
 4.  Security Considerations
 
    The security properties provided by MLS are discussed in detail in
@@ -296,6 +263,18 @@ Table of Contents
    authentication only when signatures are used.  Otherwise, SFrame only
    authenticates membership in the group, and members are free to
    impersonate each other.
+
+   The Forward Secrecy and Post-compromise Security guarantees provided
+   by an MLS group extend to a group of real time session participants,
+   as long as all members of the MLS group are participants in the
+   session.  It is recommended to keep the membership of the MLS group
+   as tight as possible, i.e. members should only be added once they
+   become session participants and evicted as soon as they drop off the
+   session.  If the application already uses MLS groups that are more
+   long term (e.g. chat groups), it is recommended to set up a new
+   ephemeral MLS group for the session by using the sub-group branching
+   mechanism provided by the MLS protocol to link the two groups
+   cryptographically.
 
 5.  IANA Considerations
 
@@ -316,27 +295,27 @@ Table of Contents
 6.  Normative References
 
    [I-D.ietf-mls-architecture]
-              Omara, E., Beurdouche, B., Rescorla, E., Inguva, S., Kwon,
+              Beurdouche, B., Rescorla, E., Omara, E., Inguva, S., Kwon,
               A., and A. Duric, "The Messaging Layer Security (MLS)
               Architecture", Work in Progress, Internet-Draft, draft-
-              ietf-mls-architecture-06, 8 March 2021,
+              ietf-mls-architecture-09, 19 August 2022,
               <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
-              architecture-06.txt>.
+              architecture-09>.
 
    [I-D.ietf-mls-protocol]
-              Barnes, R., Beurdouche, B., Millican, J., Omara, E., Cohn-
-              Gordon, K., and R. Robert, "The Messaging Layer Security
-              (MLS) Protocol", Work in Progress, Internet-Draft, draft-
-              ietf-mls-protocol-11, 22 December 2020,
+              Barnes, R., Beurdouche, B., Robert, R., Millican, J.,
+              Omara, E., and K. Cohn-Gordon, "The Messaging Layer
+              Security (MLS) Protocol", Work in Progress, Internet-
+              Draft, draft-ietf-mls-protocol-16, 11 July 2022,
               <https://datatracker.ietf.org/doc/html/draft-ietf-mls-
-              protocol-11.txt>.
+              protocol-16>.
 
    [I-D.omara-sframe]
-              Omara, E., Uberti, J., GOUAILLARD, A., and S. G. Murillo,
+              Omara, E., Uberti, J., Gouaillard, A., and S. G. Murillo,
               "Secure Frame (SFrame)", Work in Progress, Internet-Draft,
-              draft-omara-sframe-02, 29 March 2021,
+              draft-omara-sframe-03, 17 September 2021,
               <https://datatracker.ietf.org/doc/html/draft-omara-sframe-
-              02.txt>.
+              03>.
 
 Appendix A.  Acknowledgements
 
@@ -346,11 +325,13 @@ Authors' Addresses
 
    Richard Barnes
    Cisco
-
    Email: rlb@ipv.sx
 
 
    Raphael Robert
-   Wire
+   Email: ietf@raphaelrobert.com
 
-   Email: raphael@wire.com
+
+   Suhas Nandakumar
+   Cisco
+   Email: snandaku@cisco.com
