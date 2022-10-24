@@ -219,7 +219,7 @@ in the nonce computation.  With the system defined here, however, the key and
 nonce only depend on the secret and the sender ID in the KID, so having multiple
 contexts with the same secret and KID leads to nonce reuse.
 
-In order to support this situation, a sender MAY choose to use the high-order
+In order to support this situation, a sender MUST choose to use the high-order
 bits of the KID field to provide an additional context distinguisher.  These
 bits will be interpreted as part of the sender index by receivers, so different
 keys and independent nonce streams will be derived per context.
