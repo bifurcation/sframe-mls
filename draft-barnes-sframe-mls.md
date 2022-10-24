@@ -18,8 +18,12 @@ author:
     email: rlb@ipv.sx
  -  ins: R. Robert
     name: Raphael Robert
-    organization: -
+    organization: "-"
     email: ietf@raphaelrobert.com
+ -  ins: S. Nandakumar
+    name: Suhas Nandakumar
+    organization: Cisco
+    email: snandaku@cisco.com
 
 --- abstract
 
@@ -105,7 +109,7 @@ GroupContext for the group, as an extension of type `sframe_parameters`.  This
 ensures that the members of the group agree on the SFrame parameters associated
 to the group.
 
-## SFrame Parameter Selection 
+## SFrame Parameter Selection
 
 Just as with MLS ciphersuite selection, the creator of an MLS group chooses the
 SFrame parameters to be used for the group.  The parameters are then fixed for
@@ -221,16 +225,7 @@ There is per-sender authentication only when signatures are used.  Otherwise,
 SFrame only authenticates membership in the group, and members are free to
 impersonate each other.
 
-The Forward Secrecy and Post-compromise Security guarantees provided by an MLS 
-group extend to a group of real time session participants, as long as all
-members of the MLS group are participants in the session. It is recommended to
-keep the membership of the MLS group as tight as possible, i.e. members should
-only be added once they become session participants and evicted as soon as they
-drop off the session. 
-If the application already uses MLS groups that are more long term (e.g. chat 
-groups), it is recommended to set up a new ephemeral MLS group for the session
-by using the sub-group branching mechanism provided by the MLS protocol to link
-the two groups cryptographically.
+The Forward Secrecy and Post-compromise Security guarantees provided by an MLS group extend to a group of real time session participants, as long as all members of the MLS group are participants in the session. It is recommended to keep the membership of the MLS group as tight as possible, i.e. members should only be added once they become session participants and evicted as soon as they drop off the session.  If the application already uses MLS groups that are more long term (e.g. chat groups), it is recommended to set up a new ephemeral MLS group for the session by using the sub-group branching mechanism provided by the MLS protocol to link the two groups cryptographically.
 
 # IANA Considerations
 
