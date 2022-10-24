@@ -18,7 +18,6 @@ author:
     email: rlb@ipv.sx
  -  ins: R. Robert
     name: Raphael Robert
-    organization: -
     email: ietf@raphaelrobert.com
  -  ins: S. Nandakumar 
     name: Suhas Nandakumar 
